@@ -7,6 +7,8 @@ import sbt.{ExclusionRule, _}
 import scala.scalajs.sbtplugin.ScalaJSPlugin.ScalaJSKeys._
 import scala.scalajs.sbtplugin.ScalaJSPlugin._
 
+import Deps._
+
 object BuildSettings {
 
   val logger = ConsoleLogger()
@@ -48,7 +50,6 @@ object BuildSettings {
           <name>Antonio Garrote</name>
           <url>https://github.com/antoniogarrote/</url>
         </developer>
-
       </developers>
       <scm>
         <url>git@github.com:w3c/banana-rdf.git</url>
@@ -84,96 +85,28 @@ object BuildSettings {
       }
     }) ++ Seq( publishArtifact in Test := false)
 
-  val jenaTestWIPFilter = Seq (
-    testOptions in Test += Tests.Argument("-l", "org.w3.banana.jenaWIP")
-  )
-
-  val sesameTestWIPFilter = Seq (
-    testOptions in Test += Tests.Argument("-l", "org.w3.banana.sesameWIP")
-  )
+//  val jenaTestWIPFilter = Seq (
+//    testOptions in Test += Tests.Argument("-l", "org.w3.banana.jenaWIP")
+//  )
+//
+//  val sesameTestWIPFilter = Seq (
+//    testOptions in Test += Tests.Argument("-l", "org.w3.banana.sesameWIP")
+//  )
 
 }
 
 object BananaRdfBuild extends Build {
 
   import BuildSettings._
+  import Deps._
 
   // rdfstorew settings
-  skip in ScalaJSKeys.packageJSDependencies := false
-
-  val scalaActors = "org.scala-lang" % "scala-actors" % "2.10.2"
-
-  val akka = "com.typesafe.akka" %% "akka-actor" % "2.3.4"
-  val akkaTransactor = "com.typesafe.akka" %% "akka-transactor" % "2.3.4"
-
-  
-  val asyncHttpClient = "com.ning" % "async-http-client" % "1.7.12"
-
-  val scalaz = "org.scalaz" %% "scalaz-core" % "7.0.6"
-  val jodaTime = "joda-time" % "joda-time" % "2.1"
-  val jodaConvert = "org.joda" % "joda-convert" % "1.2"
-
-  val jodatimeDeps = Seq(
-    libraryDependencies += jodaTime % "provided",
-    libraryDependencies += jodaConvert % "provided")
-
-  val scalatest = "org.scalatest" %% "scalatest" % "2.2.0"
-  
-  val testsuiteDeps =
-    Seq(
-//      libraryDependencies += scalaActors,
-      libraryDependencies += scalatest
-    )
-
-  val iterateeDeps = "com.typesafe.play" %% "play-iteratees" % "2.3.0"
-  val playDeps = "com.typesafe.play" %% "play" % "2.3.0"
-
-  val reactiveMongo = "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.akka23-SNAPSHOT" excludeAll(ExclusionRule(organization = "io.netty"), ExclusionRule(organization = "play"))
-  val reactiveMongoDeps = Seq(
-        resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/" )
-
-  val testDeps =
-    Seq(
-//      libraryDependencies += scalaActors % "test",
-      libraryDependencies += scalatest % "test"
-    )
-  
-  val jenaDeps =
-    Seq(
-      resolvers += "apache-repo-releases" at "http://repository.apache.org/content/repositories/releases/",
-      libraryDependencies += "org.apache.jena" % "apache-jena-libs" % "2.11.2" ,//excludeAll(ExclusionRule(organization = "org.slf4j")),
-      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.0.7" % "provided",
-      libraryDependencies += "log4j" % "log4j" % "1.2.16" % "provided",
-      libraryDependencies += "com.fasterxml" % "aalto-xml" % "0.9.7"
-  )
-
-  val sesameVersion = "2.8.0-beta1"
-  
-  val sesameCoreDeps =
-    Seq(
-      libraryDependencies += "org.openrdf.sesame" % "sesame-queryalgebra-evaluation" % sesameVersion,
-      libraryDependencies += "org.openrdf.sesame" % "sesame-queryparser-sparql" % sesameVersion,
-      libraryDependencies += "org.openrdf.sesame" % "sesame-queryresultio-sparqljson" % sesameVersion,
-      libraryDependencies += "org.openrdf.sesame" % "sesame-rio-turtle" % sesameVersion,
-      libraryDependencies += "org.openrdf.sesame" % "sesame-rio-rdfxml" % sesameVersion)
-
-  val sesameDeps = sesameCoreDeps ++
-    Seq(
-      libraryDependencies += "org.openrdf.sesame" % "sesame-sail-memory" % sesameVersion,
-      libraryDependencies += "org.openrdf.sesame" % "sesame-sail-nativerdf" % sesameVersion,
-      libraryDependencies += "org.openrdf.sesame" % "sesame-repository-sail" % sesameVersion)
-
-  val scalaJsDeps = scalaJSSettings ++ 
-    Seq(
-      resolvers += "bblfish.net" at "http://bblfish.net/work/repo/releases/"
-    )
-
-  val scalaz_js = "com.github.japgolly.fork.scalaz" %%% "scalaz-core" % "7.0.6"
+//  skip in ScalaJSKeys.packageJSDependencies := false
   
   val pub = TaskKey[Unit]("pub")
 
   lazy val root = Project(
-    id = "banana",
+    id = "root",
     base = file("."),
     settings = buildSettings ++ Unidoc.settings ++ Seq(
       pub := (),
@@ -193,7 +126,7 @@ object BananaRdfBuild extends Build {
   lazy val rdf = Project(
     id = "rdf",
     base = file("rdf"),
-    settings = buildSettings ++ testDeps ++ Seq(
+    settings = buildSettings ++ Seq(
       libraryDependencies += scalaz,
       publishMavenStyle := true
     )
@@ -224,9 +157,10 @@ object BananaRdfBuild extends Build {
   lazy val contribJodatime = Project(
     id = "contrib-jodatime",
     base = file("contrib/jodatime"),
-    settings = buildSettings ++ testDeps ++ Seq(
+    settings = buildSettings ++ Seq(
       libraryDependencies += jodaTime,
       libraryDependencies += jodaConvert,
+      libraryDependencies += scalatest % "test",
       publishMavenStyle := true
     )
   ).dependsOn(rdf, jena % "test")
@@ -234,25 +168,24 @@ object BananaRdfBuild extends Build {
   lazy val ldpatch = Project(
     id = "ldpatch",
     base = file("ldpatch"),
-    settings = buildSettings ++ testDeps ++ Seq(
+    settings = buildSettings ++ Seq(
       publishMavenStyle := true,
-      libraryDependencies += "org.parboiled" %% "parboiled" % "2.0.0",
+      libraryDependencies += parboiled2,
       // this will be needed until parboiled 2.0.1 gets released
       // see https://github.com/sirthias/parboiled2/issues/84#
       libraryDependencies <++= scalaVersion {
         case "2.11.2" => Seq("org.scala-lang" % "scala-reflect" % "2.11.2")
         case _ => Seq.empty
-      }
+      },
+      libraryDependencies += scalatest % "test"
     )
   ) dependsOn (rdf, jena, rdfTestSuite % "test")
 
   lazy val rdfTestSuite = Project(
     id = "rdf-test-suite",
     base = file("rdf-test-suite"),
-    settings = buildSettings ++ testsuiteDeps ++ Seq(
-      libraryDependencies += akka,
-      libraryDependencies += jodaTime,
-      libraryDependencies += jodaConvert
+    settings = buildSettings ++ Seq(
+      libraryDependencies += scalatest
     )
   ) dependsOn (rdf)
 
@@ -268,25 +201,34 @@ object BananaRdfBuild extends Build {
   lazy val jena = Project(
     id = "jena",
     base = file("jena"),
-    settings = buildSettings ++ jenaTestWIPFilter ++ jenaDeps ++ testDeps ++ Seq(
-      libraryDependencies += akka
+    settings = buildSettings ++ Seq(
+      resolvers += "apache-repo-releases" at "http://repository.apache.org/content/repositories/releases/",
+      libraryDependencies += jenaLibs,
+      libraryDependencies += logback,
+      libraryDependencies += aalto
     )
   ) dependsOn (rdf, rdfTestSuite % "test")
   
   lazy val sesame = Project(
     id = "sesame",
     base = file("sesame"),
-    settings = buildSettings ++ sesameTestWIPFilter ++ sesameDeps ++ testDeps ++ Seq(
-      libraryDependencies += akka
+    settings = buildSettings ++ Seq(
+      libraryDependencies += sesameQueryAlgebra,
+      libraryDependencies += sesameQueryParser,
+      libraryDependencies += sesameQueryResult,
+      libraryDependencies += sesameRioTurtle,
+      libraryDependencies += sesameRioRdfxml,
+      libraryDependencies += sesameSailMemory,
+      libraryDependencies += sesameSailNativeRdf,
+      libraryDependencies += sesameRepositorySail
     )
   ) dependsOn (rdf, rdfTestSuite % "test")
 
   lazy val plantain = Project(
     id = "plantain",
     base = file("plantain"),
-    settings = buildSettings ++ testDeps ++  Seq(
-      //      libraryDependencies += "org.semarglproject" % "semargl-rdf" % "0.6.1",
-      libraryDependencies += "org.openrdf.sesame" % "sesame-rio-turtle" % sesameVersion,
+    settings = buildSettings ++  Seq(
+      libraryDependencies += sesameRioTurtle,
       libraryDependencies += "com.typesafe.akka" %% "akka-http-core-experimental" % "0.4"
     )
   ) dependsOn (rdf, rdfTestSuite % "test")
