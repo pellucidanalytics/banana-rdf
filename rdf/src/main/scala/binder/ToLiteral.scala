@@ -6,7 +6,7 @@ trait ToLiteral[Rdf <: RDF, -T] {
   def toLiteral(t: T): Rdf#Literal
 }
 
-trait ToLiteralCore {
+object ToLiteral {
 
   implicit def LiteralToLiteral[Rdf <: RDF] = new ToLiteral[Rdf, Rdf#Literal] {
     def toLiteral(t: Rdf#Literal): Rdf#Literal = t
@@ -42,25 +42,6 @@ trait ToLiteralCore {
     new ToLiteral[Rdf, Double] {
       import ops._
       def toLiteral(d: Double): Rdf#Literal = Literal(d.toString, xsd.double)
-    }
-
-  /* @InTheNow will find a better way to do this
-  import scalajs.js
-  implicit def JSDateToLiteral[Rdf <: RDF](implicit ops: RDFOps[Rdf]) =
-    new ToLiteral[Rdf, js.Date] {
-      import ops._
-      def toLiteral(dateTime: js.Date): Rdf#Literal = {
-        val isoString:String = js.Dynamic.global.moment(dateTime).toISOString().asInstanceOf[String]
-        Literal(isoString, xsd.dateTime)
-      }
-    }
-*/
-  import org.joda.time.DateTime
-
-  implicit def DateTimeToLiteral[Rdf <: RDF](implicit ops: RDFOps[Rdf]) =
-    new ToLiteral[Rdf, DateTime] {
-      import ops._
-      def toLiteral(dateTime: DateTime): Rdf#Literal = Literal(dateTime.toString, xsd.dateTime)
     }
 
   implicit def ByteArrayToLiteral[Rdf <: RDF](implicit ops: RDFOps[Rdf]) =

@@ -10,7 +10,7 @@ trait FromLiteral[Rdf <: RDF, +T] {
   def fromLiteral(literal: Rdf#Literal): Try[T]
 }
 
-trait FromLiteralCore {
+object FromLiteral {
 
   implicit def LiteralFromLiteral[Rdf <: RDF] = new FromLiteral[Rdf, Rdf#Literal] {
     def fromLiteral(literal: Rdf#Literal): Success[Rdf#Literal] = Success(literal)
@@ -91,24 +91,6 @@ trait FromLiteralCore {
     }
   }
 
-  /*
- 
-  implicit def DateTimeFromLiteral[Rdf <: RDF](implicit ops: RDFOps[Rdf]) = new FromLiteral[Rdf, DateTime] {
-    import ops._
-    def fromLiteral(literal: Rdf#Literal): Try[DateTime] = {
-      val Literal(lexicalForm, datatype, _) = literal
-      if (datatype == xsd.dateTime) {
-        try {
-          Success(DateTime.parse(lexicalForm))
-        } catch {
-          case _: IllegalArgumentException => Failure(FailedConversion(s"${literal} is an xsd.datetime but is not an acceptable datetime"))
-        }
-      } else {
-        Failure(FailedConversion(s"${literal} is not an xsd:datetime"))
-      }
-    }
-  }
-*/
   implicit def ByteArrayFromLiteral[Rdf <: RDF](implicit ops: RDFOps[Rdf]) = new FromLiteral[Rdf, Array[Byte]] {
     import ops._
     val whitespace = "\\s".r

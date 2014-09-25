@@ -1,23 +1,10 @@
-package org.w3.banana.binder
+package org.w3.banana.contrib.jodatime
 
+import org.w3.banana._, binder._
 import org.joda.time.DateTime
-import org.w3.banana._
-
 import scala.util._
 
-//todo: why does one need this redefined here? (It does not compile if this trait is not duplicated...
-trait FromLiteral[Rdf <: RDF, +T] {
-  def fromLiteral(literal: Rdf#Literal): Try[T]
-}
-
-//todo: why does one need this redefined here? (It does not compile if this trait is not duplicated...
-trait ToLiteral[Rdf <: RDF, -T] {
-  def toLiteral(t: T): Rdf#Literal
-}
-
-object ToLiteral extends ToLiteralCore
-
-object FromLiteral extends FromLiteralCore {
+object JodaImplicits {
 
   implicit def DateTimeFromLiteral[Rdf <: RDF](implicit ops: RDFOps[Rdf]) = new FromLiteral[Rdf, DateTime] {
     import ops._
@@ -34,4 +21,11 @@ object FromLiteral extends FromLiteralCore {
       }
     }
   }
+
+  implicit def DateTimeToLiteral[Rdf <: RDF](implicit ops: RDFOps[Rdf]) =
+    new ToLiteral[Rdf, DateTime] {
+      import ops._
+      def toLiteral(dateTime: DateTime): Rdf#Literal = Literal(dateTime.toString, xsd.dateTime)
+    }
+
 }

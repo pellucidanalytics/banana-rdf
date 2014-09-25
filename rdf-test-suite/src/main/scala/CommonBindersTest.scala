@@ -4,18 +4,12 @@ import org.w3.banana._
 import org.w3.banana.syntax._
 import org.w3.banana.diesel._
 import org.scalatest._
-import org.joda.time.DateTime
 import scala.util._
 
-abstract class CommonBindersTest[Rdf <: RDF]()(implicit ops: RDFOps[Rdf])
-    extends WordSpec with Matchers {
+abstract class CommonBindersTest[Rdf <: RDF](implicit ops: RDFOps[Rdf])
+extends WordSpec with Matchers {
 
   import ops._
-
-  "serializing and deserialiazing Joda DateTime" in {
-    val dateTime = DateTime.now()
-    dateTime.toPG.as[DateTime].get.compareTo(dateTime) should be(0)
-  }
 
   "serializing and deserialiazing a Boolean" in {
     val truePg = true.toPG
